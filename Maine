@@ -1,0 +1,627 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Cricket Simulator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#080e18;color:#e9eefb;padding:14px 12px 40px;min-height:100vh}
+.w{max-width:1000px;margin:0 auto}
+h1{text-align:center;font-size:1.35rem;margin-bottom:6px;background:linear-gradient(90deg,#4ade80,#38bdf8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{text-align:center;color:#8a9bbd;font-size:.76rem;margin-bottom:16px}
+.c{background:#121c2e;border:1px solid #243352;border-radius:14px;padding:16px;margin-bottom:14px}
+.c h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:#38bdf8;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:640px){.g2{grid-template-columns:1fr}}
+.tb{background:#182541;border:1px solid #243352;border-radius:11px;padding:13px}
+.tb.a{border-top:3px solid #22c55e}.tb.b{border-top:3px solid #fbbf24}
+.th{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.dot.a{background:#22c55e;box-shadow:0 0 10px #22c55e}
+.dot.b{background:#fbbf24;box-shadow:0 0 10px #fbbf24}
+.csel{flex:1;background:#0b1424;border:1px solid #243352;color:#e9eefb;padding:9px 10px;border-radius:8px;font-size:.85rem;font-family:inherit;font-weight:700;outline:none;cursor:pointer}
+.tn{width:100%;background:transparent;border:none;border-bottom:1px dashed #243352;color:#e9eefb;font-size:.9rem;font-weight:700;padding:4px 0;outline:none;margin-bottom:10px;font-family:inherit}
+.tn:focus{border-bottom-color:#38bdf8}
+.sr{display:flex;justify-content:space-between;font-size:.7rem;color:#8a9bbd;text-transform:uppercase;margin:8px 0 3px;align-items:center}
+.sr output{color:#e9eefb;font-weight:700;background:#0b1424;padding:1px 7px;border-radius:5px;font-size:.85rem}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;background:linear-gradient(90deg,#22c55e,#38bdf8);border-radius:5px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;background:#fff;border:3px solid #22c55e;border-radius:50%}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f label{font-size:.66rem;color:#8a9bbd;text-transform:uppercase;font-weight:600}
+.f select,.f input{background:#0b1424;border:1px solid #243352;color:#e9eefb;padding:9px;border-radius:8px;font-size:.85rem;font-family:inherit;outline:none}
+.sg{display:flex;background:#0b1424;border:1px solid #243352;border-radius:8px;padding:3px;gap:3px}
+.sg button{flex:1;background:transparent;border:none;color:#8a9bbd;padding:7px;border-radius:6px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:inherit}
+.sg button.on{background:#22c55e;color:#03140b}
+.btn{width:100%;margin-top:16px;padding:14px;border:none;border-radius:11px;background:linear-gradient(135deg,#22c55e,#0ea5e9);color:#03140b;font-size:.95rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.5}
+.ld{text-align:center;padding:36px 16px}
+.bl{width:46px;height:46px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff5f5f,#b91c1c);animation:bo .6s ease-in-out infinite alternate}
+@keyframes bo{from{transform:translateY(-20px)}to{transform:translateY(12px)}}
+.ld p{color:#38bdf8;font-size:.85rem;font-weight:600}
+.rh{text-align:center;background:linear-gradient(150deg,#0f2a1c,#0c1a2e,#1a1230);border-color:#1f4d38}
+.rt{display:inline-block;font-size:.6rem;letter-spacing:2px;color:#22c55e;border:1px solid rgba(34,197,94,.4);border-radius:14px;padding:3px 12px;margin-bottom:10px;text-transform:uppercase;font-weight:800}
+.rl{font-size:1.2rem;font-weight:900;margin-bottom:8px;line-height:1.35}
+.rl .w{color:#22c55e}.rl .t{color:#fbbf24}
+.rs{color:#8a9bbd;font-size:.76rem}
+.vs{display:flex;justify-content:center;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.vt{background:rgba(255,255,255,.05);border:1px solid #243352;border-radius:10px;padding:8px 14px;font-weight:700;font-size:.82rem}
+.vt small{display:block;font-size:.63rem;color:#8a9bbd;margin-top:2px}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px}
+.ch{background:#182541;border:1px solid #243352;border-radius:10px;padding:10px}
+.ch .k{font-size:.6rem;color:#8a9bbd;text-transform:uppercase;letter-spacing:.7px;font-weight:700;margin-bottom:3px}
+.ch .v{font-size:.86rem;font-weight:700}
+.ch.dew{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.08)}
+.ch.dew .v{color:#4ade80}
+.sw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:380px}
+th{text-align:right;padding:8px;font-size:.6rem;color:#8a9bbd;text-transform:uppercase;letter-spacing:.7px;border-bottom:1.5px solid #243352;font-weight:700}
+th:first-child{text-align:left}
+td{padding:9px 8px;text-align:right;border-bottom:1px solid rgba(36,51,82,.5);font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;font-weight:600}
+tr.tot td{border-top:2px solid #243352;border-bottom:none;font-weight:900;color:#22c55e;background:rgba(34,197,94,.06)}
+.pn{font-size:.63rem;color:#8a9bbd;font-weight:500;display:block;margin-top:1px}
+.ih{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:12px;align-items:center}
+.ih h3{font-size:.88rem;font-weight:700}
+.is{font-size:1.15rem;font-weight:900;font-variant-numeric:tabular-nums}
+.is span{font-size:.7rem;color:#8a9bbd;font-weight:600;margin-left:5px}
+.cb{margin-top:12px;background:#182541;border:1px solid #243352;border-radius:10px;padding:10px 12px;font-size:.76rem;color:#8a9bbd;display:flex;flex-wrap:wrap;gap:6px 18px}
+.cb b{color:#e9eefb;font-weight:800}
+.rw{background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.4);color:#7dd3fc;border-radius:9px;padding:10px 12px;margin:10px 0;font-size:.78rem;font-weight:600;line-height:1.5}
+.rw b{color:#38bdf8;font-weight:800}
+.smc{background:linear-gradient(140deg,#101f2e,#131a2e);border-color:#1e3a52}
+.smc p{font-size:.84rem;line-height:1.65;color:#c6d3ea}
+.smc p+p{margin-top:9px}
+.hl{color:#22c55e;font-weight:700}.hl2{color:#38bdf8;font-weight:700}.hl3{color:#fbbf24;font-weight:700}
+.hid{display:none!important}
+.er{color:#f87171;font-size:.78rem;text-align:center;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:9px;margin-top:10px}
+.ft{text-align:center;color:#3d4d6b;font-size:.66rem;margin-top:20px}
+.tw{text-align:center;font-size:1.05rem;font-weight:800;margin-bottom:12px;color:#22c55e;padding:14px;background:rgba(34,197,94,.08);border-radius:10px;border:1px solid rgba(34,197,94,.3);line-height:1.4}
+.tq{text-align:center;color:#8a9bbd;font-size:.85rem;margin-bottom:14px}
+.tbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tbtn{padding:16px 14px;border:1px solid #243352;background:#182541;color:#e9eefb;border-radius:11px;font-size:.92rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s}
+.tbtn:hover{background:#22c55e;color:#03140b;border-color:#22c55e}
+.tbtn:active{transform:scale(.97)}
+.so{background:linear-gradient(135deg,#1c0a2e,#2a0a1e);border:1px solid #6d28d9;border-radius:12px;padding:14px;margin-bottom:12px}
+.so-t{color:#fbbf24;font-weight:800;letter-spacing:1.5px;font-size:.68rem;text-transform:uppercase;margin-bottom:10px}
+.so-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(109,40,217,.25);font-size:.85rem}
+.so-row:last-child{border-bottom:none}
+.so-row b{color:#e9eefb;font-weight:700}
+.so-row .sc{color:#fbbf24;font-weight:800;font-variant-numeric:tabular-nums}
+.potm{background:linear-gradient(135deg,#14532d,#0f2a1c);border:1px solid #22c55e;border-radius:12px;padding:14px}
+.potm-k{font-size:.6rem;color:#86efac;letter-spacing:1.5px;text-transform:uppercase;font-weight:800;margin-bottom:4px}
+.potm-n{font-size:1.05rem;font-weight:900;color:#4ade80}
+.potm-s{font-size:.72rem;color:#86efac;margin-top:4px}
+</style></head><body>
+<div class="w">
+<h1>AI Cricket Match Simulator</h1>
+<p class="sub">DLS · Dew · Super Over · Countries · Custom Overs</p>
+
+<section class="c" id="inp">
+<h2>Match Setup</h2>
+<div class="g2">
+<div class="tb a">
+<div class="th"><span class="dot a"></span><select class="csel" id="aCountry"></select></div>
+<input class="tn" id="aN" value="Team A" maxlength="20" placeholder="Enter team name">
+<div class="sr"><label>Batting Rating</label><output id="aBO">8.0</output></div>
+<input type="range" id="aB" min="0" max="10" step="0.1" value="8">
+<div class="sr"><label>Bowling Rating</label><output id="aWO">7.5</output></div>
+<input type="range" id="aW" min="0" max="10" step="0.1" value="7.5">
+</div>
+<div class="tb b">
+<div class="th"><span class="dot b"></span><select class="csel" id="bCountry"></select></div>
+<input class="tn" id="bN" value="Team B" maxlength="20" placeholder="Enter team name">
+<div class="sr"><label>Batting Rating</label><output id="bBO">7.5</output></div>
+<input type="range" id="bB" min="0" max="10" step="0.1" value="7.5">
+<div class="sr"><label>Bowling Rating</label><output id="bWO">8.0</output></div>
+<input type="range" id="bW" min="0" max="10" step="0.1" value="8">
+</div>
+</div>
+<h2>Conditions</h2>
+<div class="mg">
+<div class="f"><label>Format</label><div class="sg" id="fs"><button class="on" data-v="T20">T20</button><button data-v="ODI">ODI</button></div></div>
+<div class="f"><label>Home Team</label><select id="ht"><option value="n">Neutral</option><option value="A">Team A</option><option value="B">Team B</option></select></div>
+<div class="f"><label>Ground</label><select id="grnd"><option value="">Neutral Venue</option></select></div>
+<div class="f"><label>Pitch</label><select id="pt"><option value="green">Green</option><option value="dry">Dry</option><option value="balanced" selected>Balanced</option><option value="hard">Hard</option><option value="flat">Flat</option></select></div>
+<div class="f"><label>Temperature (°C)</label><input type="number" id="tp" value="25" min="-10" max="55"></div>
+<div class="f"><label>Custom Overs (Optional)</label><input type="number" id="cOvers" placeholder="e.g. 10" min="1" max="50"></div>
+</div>
+<button class="btn" id="sb">Simulate Match</button>
+<div class="er hid" id="eb"></div>
+</section>
+
+<section class="c ld hid" id="ld"><div class="bl"></div><p id="lm">Analysing pitch…</p></section>
+
+<section class="c hid" id="toss">
+<h2>Toss Result</h2>
+<div class="tw" id="tossWinner">—</div>
+<div class="tq">What's your decision, captain?</div>
+<div class="tbtns">
+<button class="tbtn" id="batBtn">🏏 Bat First</button>
+<button class="tbtn" id="bowlBtn">⚾ Bowl First</button>
+</div>
+</section>
+
+<section id="out"></section>
+<div class="ft">AI Cricket Simulator · Probabilistic engine</div>
+</div>
+<script>
+/* ============ DATA: COUNTRIES & GROUNDS ============ */
+var COUNTRIES={
+"India":{ODI:[9.8,9.2],T20:[9.8,9.5],flag:"🇮🇳"},
+"Australia":{ODI:[9.3,9.5],T20:[9.2,8.9],flag:"🇦🇺"},
+"England":{ODI:[9.0,8.0],T20:[9.6,9.0],flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"},
+"South Africa":{ODI:[9.1,9.0],T20:[9.1,9.2],flag:"🇿🇦"},
+"New Zealand":{ODI:[8.8,9.1],T20:[8.8,8.8],flag:"🇳🇿"},
+"Pakistan":{ODI:[8.8,9.2],T20:[8.5,9.0],flag:"🇵🇰"},
+"Afghanistan":{ODI:[8.0,9.3],T20:[8.5,9.4],flag:"🇦🇫"},
+"Sri Lanka":{ODI:[8.3,8.2],T20:[8.2,8.6],flag:"🇱🇰"},
+"Bangladesh":{ODI:[7.8,8.0],T20:[7.8,8.3],flag:"🇧🇩"},
+"West Indies":{ODI:[8.0,7.5],T20:[9.5,8.2],flag:"🌴"}
+};
+var GROUNDS={
+"India":[{n:"Wankhede Stadium",p:"flat"},{n:"Eden Gardens",p:"balanced"},{n:"Chinnaswamy",p:"flat"}],
+"Australia":[{n:"MCG",p:"hard"},{n:"SCG",p:"dry"},{n:"Adelaide Oval",p:"balanced"}],
+"England":[{n:"Lord's",p:"green"},{n:"The Oval",p:"balanced"},{n:"Old Trafford",p:"hard"}],
+"South Africa":[{n:"Newlands",p:"green"},{n:"Wanderers",p:"hard"},{n:"Kingsmead",p:"dry"}],
+"New Zealand":[{n:"Basin Reserve",p:"green"},{n:"Eden Park",p:"balanced"},{n:"Hagley Oval",p:"green"}],
+"Pakistan":[{n:"Gaddafi Stadium",p:"flat"},{n:"National Stadium",p:"dry"},{n:"Rawalpindi",p:"flat"}],
+"Afghanistan":[{n:"Kabul Stadium",p:"dry"},{n:"Sharjah (Home)",p:"flat"}],
+"Sri Lanka":[{n:"R. Premadasa",p:"dry"},{n:"Pallekele",p:"balanced"},{n:"Galle",p:"dry"}],
+"Bangladesh":[{n:"Sher-e-Bangla",p:"dry"},{n:"Zahur Ahmed",p:"balanced"}],
+"West Indies":[{n:"Kensington Oval",p:"hard"},{n:"Sabina Park",p:"green"},{n:"Queens Park",p:"balanced"}]
+};
+
+/* ============ CONFIG ============ */
+var FMT={
+T20:{ov:20,base:8.30,ph:[{n:'Powerplay',s:1,e:6,w:1.02,k:0.22},{n:'Middle Overs',s:7,e:15,w:0.90,k:0.30},{n:'End Overs',s:16,e:20,w:1.30,k:0.55}]},
+ODI:{ov:50,base:5.60,ph:[{n:'Powerplay',s:1,e:10,w:0.95,k:0.16},{n:'Middle Overs',s:11,e:40,w:0.95,k:0.095},{n:'End Overs',s:41,e:50,w:1.28,k:0.28}]}};
+var PCH={green:{l:'Green Pitch',b:0.86,k:1.32,d:'seam and low scoring'},dry:{l:'Dry Pitch',b:0.93,k:1.15,d:'slow and spin friendly'},balanced:{l:'Balanced Pitch',b:1,k:1,d:'an even contest'},hard:{l:'Hard Pitch',b:1.06,k:0.91,d:'true bounce and good for batting'},flat:{l:'Flat Pitch',b:1.11,k:0.82,d:'a batting paradise'}};
+var HOM={b:1.030,o:0.975,k:1.020};
+var CO={bS:0.040,wS:0.036,wB:0.042,wW:0.048,nBmin:0.52,nBmax:1.48,wEmin:0.45,wEmax:2.25,fSD:0.06,fMin:0.87,fMax:1.13,wfSD:0.105,wfMin:0.74,wfMax:1.30,nA:0.62,nB:1.20,mx:36,sp:0.93,sw:1.06,cd:0.55,cw:1.05,caMin:0.70,caMax:1.60};
+
+(function(){
+for(var k in FMT){
+var f=FMT[k],w=0;
+for(var i=0;i<f.ph.length;i++)w+=(f.ph[i].e-f.ph[i].s+1)*f.ph[i].w;
+var a=w/f.ov;
+for(var j=0;j<f.ph.length;j++)f.ph[j].nw=f.ph[j].w/a;
+}
+})();
+
+/* ============ UTILS ============ */
+var PT=(function(){
+var t={};
+for(var l=1;l<=200;l++){
+var L=l/100,p=[Math.exp(-L),Math.exp(-L)*L,Math.exp(-L)*L*L*0.5],c=p[0]+p[1]+p[2];
+if(c<1)p[2]+=1-c;else for(var i=0;i<3;i++)p[i]/=c;
+t[l]=p;
+}
+return t;
+})();
+
+function pois(L,mk){
+var i=Math.round(L*100);
+if(i<1)i=1;if(i>200)i=200;
+var p=PT[i],r=Math.random();
+if(r<p[0])return 0;
+if(r<p[0]+p[1])return Math.min(1,mk);
+return Math.min(2,mk);
+}
+
+function cl(v,a,b){return v<a?a:v>b?b:v;}
+
+function gs(m,s){
+var u=0,v=0;
+while(u===0)u=Math.random();
+while(v===0)v=Math.random();
+return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+function netBat(b,ob){
+var r=1+((b-5)*CO.bS)+(-((ob-5)*CO.wS));
+return cl(r,CO.nBmin,CO.nBmax);
+}
+
+function tRun(t){return cl(1+(t-22)*0.0014,0.955,1.040);}
+
+function tWkt(t){
+var m=1;
+if(t>33)m+=Math.min(0.06,(t-33)*0.004);
+if(t<12)m+=Math.min(0.06,(12-t)*0.005);
+return m;
+}
+/* ============ CORE INNINGS ENGINE (with Custom Overs & Dew) ============ */
+function simInn(ctx,bt,bl,isChase,target,dew,groundMod){
+var f=FMT[ctx.fmt],p=PCH[ctx.pch];
+var totalOv = ctx.customOvers || f.ov;
+var phs = [];
+
+if (ctx.customOvers) {
+    var p1 = Math.max(1, Math.round(totalOv * 0.3));
+    var p2 = Math.max(p1 + 1, Math.round(totalOv * 0.8));
+    if (p2 >= totalOv) p2 = totalOv - 1;
+    if (totalOv <= 3) { p1 = 1; p2 = Math.max(2, totalOv - 1); }
+    phs = [
+        {n:'Powerplay', s:1, e:p1, r:0, w:0, o:0, nw:1.05, k:0.22},
+        {n:'Middle Overs', s:p1+1, e:p2, r:0, w:0, o:0, nw:0.92, k:0.28},
+        {n:'End Overs', s:p2+1, e:totalOv, r:0, w:0, o:0, nw:1.35, k:0.50}
+    ];
+    var ww = 0;
+    for(var i=0;i<3;i++) ww += (phs[i].e - phs[i].s + 1) * phs[i].nw;
+    var aa = ww / totalOv;
+    for(var i=0;i<3;i++) phs[i].nw = phs[i].nw / aa;
+} else {
+    phs = f.ph.map(function(x){return{n:x.n,s:x.s,e:x.e,r:0,w:0,o:0,nw:x.nw,k:x.k};});
+}
+
+var hb=ctx.hm===bt.k?HOM.b:1,ho=ctx.hm===bl.k?HOM.o:1,hw=ctx.hm===bl.k?HOM.k:1;
+var nb=netBat(bt.bat,bl.bwl),tb=tRun(ctx.tmp),tw=tWkt(ctx.tmp);
+var fm=cl(gs(1,CO.fSD),CO.fMin,CO.fMax),wf=cl(gs(1,CO.wfSD),CO.wfMin,CO.wfMax);
+var we=cl((1-(bt.bat-5)*CO.wB)*(1+(bl.bwl-5)*CO.wW)*p.k*tw*wf*hw,CO.wEmin,CO.wEmax);
+
+var R=0,W=0,OB=0,ao=false,wn=false,st=0;
+var dR=dew?1.05:1, dW=dew?0.93:1;
+var gB=1+(groundMod||0);
+
+for(var ov=1;ov<=totalOv;ov++){
+var pi=0;
+for(var i=0;i<phs.length;i++){if(ov>=phs[i].s&&ov<=phs[i].e){pi=i;break;}}
+var ph=phs[pi],s=phs[pi];
+var ex=f.base*ph.nw*nb*p.b*hb*ho*tb*fm*dR*gB,wk=ph.k*we*dW;
+if(st>0){ex*=CO.sp;wk*=CO.sw;st--;}
+if(isChase){
+    var bl2=(totalOv-ov+1)*6, nd=target-R;
+    var rr=(nd*6)/bl2;
+    var ag=cl(rr/Math.max(ex,0.5),CO.caMin,CO.caMax);
+    ex*=1+(ag-1)*CO.cd;
+    wk*=1+(ag-1)*CO.cw;
+}
+ex=ex<0.5?0.5:ex;
+wk=wk<0.01?0.01:wk;
+var or=Math.round(gs(ex,ex*CO.nA+CO.nB));
+if(or<0)or=0;if(or>CO.mx)or=CO.mx;
+var ow=pois(wk,2);
+if(isChase&&R+or>=target){or=target-R;ow=0;R+=or;s.r+=or;s.o++;OB++;wn=true;break;}
+if(W+ow>10)ow=10-W;
+R+=or;W+=ow;s.r+=or;s.w+=ow;s.o++;OB++;st=ow>0?1:0;
+if(W>=10){ao=true;break;}
+}
+
+var cr=0,co2=0;
+for(var j=0;j<phs.length;j++){cr+=phs[j].r;co2+=phs[j].o;phs[j].cr=cr;phs[j].co=co2;}
+return{t:bt,r:R,w:W,o:OB,ph:phs,ao:ao,wn:wn,tg:isChase?target:null,rpo:OB>0?R/OB:0};
+}
+
+/* ============ SUPER OVER ============ */
+function simSuperOver(ctx,A,B,batFirstKey){
+function oneOver(bat,bl){
+var R=0,W=0;
+for(var i=0;i<6;i++){
+var ex=FMT.T20.base*1.1*netBat(bat.bat,bl.bwl)*PCH[ctx.pch].b*1.2;
+var wk=0.18*PCH[ctx.pch].k*(1+(bl.bwl-5)*0.04)*(1-(bat.bat-5)*0.03);
+var r=Math.round(gs(ex,ex*0.8));if(r<0)r=0;if(r>6)r=6;
+if(Math.random()<0.15)r=6;
+var w=pois(wk,1);
+R+=r;W+=w;
+if(W>=2)break;
+}
+return{r:R,w:W};
+}
+var firstTeam=batFirstKey==='A'?A:B, secondTeam=batFirstKey==='A'?B:A;
+var r1=oneOver(firstTeam,secondTeam);
+var target=r1.r+1;
+var r2=oneOver(secondTeam,firstTeam);
+var winner, margin;
+if(r2.r>=target){winner=secondTeam;margin=2-r2.w;}
+else if(r2.r===r1.r){winner=null;margin=0;}
+else{winner=firstTeam;margin=r1.r-r2.r;}
+return {f1:{team:firstTeam.n,r:r1.r,w:r1.w},f2:{team:secondTeam.n,r:r2.r,w:r2.w},winner:winner,margin:margin,ty:winner?'so':'so-tie'};
+}
+
+/* ============ MATCH ENGINE (with Rain/DLS) ============ */
+function simMatch(inp,tossKey,choice){
+var ctx={fmt:inp.fmt,pch:inp.pch,tmp:inp.tmp,hm:inp.hm,customOvers:inp.cOvers};
+var A={k:'A',n:inp.aN,bat:inp.aB,bwl:inp.aW},B={k:'B',n:inp.bN,bat:inp.bB,bwl:inp.bW};
+var tw=tossKey==='A'?A:B,bf,bs;
+if(choice==='bat'){bf=tw;bs=(tw===A)?B:A;}
+else{bs=tw;bf=(tw===A)?B:A;}
+
+var dew=inp.tmp>=25;
+var groundMod=inp.groundMod||0;
+
+/* --- 1st Innings --- */
+var f1=simInn(ctx,bf,bs,false,0,false,groundMod);
+var tg=f1.r+1;
+
+/* --- Rain Check (1st innings based on overs played) --- */
+var rain1=false, dlsTarget=tg;
+var totalOversFMT=ctx.customOvers||FMT[ctx.fmt].ov;
+var adjustedOvers=totalOversFMT;
+if(Math.random()<0.15){
+rain1=true;
+adjustedOvers=Math.floor(totalOversFMT*0.7);
+dlsTarget=Math.round(f1.r*(adjustedOvers/totalOversFMT))+1;
+if(dlsTarget<1)dlsTarget=1;
+}
+
+/* --- 2nd Innings (Chase with DLS) --- */
+var f2=simInn(ctx,bs,bf,true,dlsTarget,dew,groundMod);
+
+/* --- Rain Check (2nd innings based on overs played) --- */
+var rain2=false, finalTarget=dlsTarget;
+if(!rain1 && Math.random()<0.10){
+rain2=true;
+var oversPlayed=f2.o;
+var maxOvers2=ctx.customOvers||FMT[ctx.fmt].ov;
+var remaining=maxOvers2-oversPlayed;
+if(remaining>0){
+var resourcePct=oversPlayed/maxOvers2;
+var revised=dlsTarget*resourcePct;
+if(revised<f2.r+1)revised=f2.r+1;
+finalTarget=Math.round(revised);
+}
+}
+
+/* --- Result --- */
+var res;
+if(f2.r>=finalTarget){res={ty:'wk',w:bs,m:10-f2.w};}
+else if(f2.r===f1.r && !rain1 && !rain2){res={ty:'ti',w:null,m:0};}
+else{res={ty:'rn',w:bf,m:finalTarget-f2.r-1};}
+
+/* --- Super Over if Tie --- */
+var so=null;
+if(res.ty==='ti'){
+so=simSuperOver(ctx,A,B,bf.k);
+if(so.winner){
+res={ty:'so',w:so.winner,m:so.margin};
+}
+}
+
+return{ctx:ctx,A:A,B:B,f1:f1,f2:f2,res:res,tw:tw,tg:finalTarget,origTg:tg,dew:dew,rain1:rain1,rain2:rain2,adjustedOvers:adjustedOvers,so:so,groundMod:groundMod,choice:choice};
+}
+
+/* ============ POTM ============ */
+function calcPOTM(R){
+var sA=(R.f1.t.k==='A'?R.f1.r:0)+(R.f2.t.k==='A'?R.f2.r:0)+((R.f1.t.k==='B'?R.f1.w:0)+(R.f2.t.k==='B'?R.f2.w:0))*20;
+var sB=(R.f1.t.k==='B'?R.f1.r:0)+(R.f2.t.k==='B'?R.f2.r:0)+((R.f1.t.k==='A'?R.f1.w:0)+(R.f2.t.k==='A'?R.f2.w:0))*20;
+if(R.res.ty!=='ti'&&R.res.w){
+if(R.res.w.k==='A')sA*=1.15;else sB*=1.15;
+}
+var w=sA>sB?R.A.n:R.B.n;
+var winScore=Math.max(sA,sB);
+return '<div class="potm"><div class="potm-k">Player of the Match</div><div class="potm-n">'+w+'</div><div class="potm-s">Impact Score: '+Math.round(winScore)+' pts</div></div>';
+}
+/* ============ SUMMARY ============ */
+function genSum(R){
+var c=R.ctx,f1=R.f1,f2=R.f2,rs=R.res,isT=c.fmt==='T20',p=PCH[c.pch],o=[];
+o.push(R.tw.n+' won the toss and chose to '+(R.choice==='bat'?'bat':'bowl')+' first. '+f1.t.n+' set out on a '+p.l.toLowerCase()+' in '+(c.tmp>=32?'hot':c.tmp<=14?'cool':'mild')+' conditions.');
+if(R.dew)o.push('<span class="hl2">💧 Dew factor</span> kicked in during the second innings, making batting significantly easier.');
+if(R.rain1)o.push('<span class="hl2">🌧️ Rain interrupted</span> the match! The game was reduced to '+R.adjustedOvers+' overs per side, with DLS revising the target.');
+if(R.rain2)o.push('<span class="hl2">🌧️ Rain</span> forced a mid-chase recalculation using DLS.');
+var fp=f1.ph[0],pp=isT?48:50;
+if(fp.o>0){
+if(fp.r>=pp*1.12)o.push('They attacked hard and made <span class="hl">'+fp.r+'/'+fp.w+'</span> in the Powerplay.');
+else if(fp.r<=pp*0.85)o.push('The Powerplay was a struggle \u2014 only <span class="hl2">'+fp.r+'/'+fp.w+'</span>.');
+else o.push('A controlled Powerplay brought <span class="hl2">'+fp.r+'/'+fp.w+'</span>.');
+}
+var fm=f1.ph[1];
+if(fm.o>0){var mr=fm.r/fm.o,pr=FMT[c.fmt].base;
+if(mr>pr*1.08)o.push('The middle overs kept the tempo high \u2014 '+fm.r+' runs at '+mr.toFixed(2)+'.');
+else if(mr<pr*0.88)o.push('The middle overs slowed things down \u2014 '+fm.r+' runs at just '+mr.toFixed(2)+'.');
+else o.push('The middle phase produced '+fm.r+' runs for '+fm.w+' wicket(s).');
+}
+var fe=f1.ph[2];
+if(fe.o>0){var dr=fe.r/fe.o;
+if(dr>=10&&isT)o.push('A brutal finish saw them smash <span class="hl">'+fe.r+'</span> in the last '+fe.o+' overs.');
+else if(dr>=8&&!isT)o.push('They accelerated at the death, taking '+fe.r+' off the final '+fe.o+' overs.');
+else o.push('The death overs produced '+fe.r+' runs, closing the innings at <span class="hl">'+f1.r+'/'+f1.w+'</span>.');
+}else o.push('The innings ended early at <span class="hl">'+f1.r+'/'+f1.w+'</span>.');
+
+o.push(f2.t.n+' needed <span class="hl3">'+R.tg+'</span> at a required rate of '+(R.tg/(R.rain2?f2.o:(c.customOvers||FMT[c.fmt].ov))).toFixed(2)+' an over.');
+var sp=f2.ph[0],sm=f2.ph[1];
+if(f2.ph.some(function(x){return x.o>0;})){
+if(rs.ty==='wk')o.push('They paced the chase well \u2014 '+sp.r+'/'+sp.w+' in the Powerplay'+(sm.o?', '+sm.r+'/'+sm.w+' through the middle':'')+' \u2014 finishing on <span class="hl">'+f2.r+'/'+f2.w+'</span> in '+f2.o+' overs.');
+else if(rs.ty==='ti')o.push('They matched the total exactly, finishing on <span class="hl3">'+f2.r+'/'+f2.w+'</span> \u2014 a dramatic tie.');
+else if(rs.ty==='so')o.push('<span class="hl3">🔥 Super Over!</span> A nail-biting finish.');
+else{var fs=R.tg-f2.r;
+if(f2.ao)o.push('The chase collapsed \u2014 bowled out for <span class="hl3">'+f2.r+'</span>, falling '+fs+' run(s) short.');
+else if(fs<=12)o.push('They stayed in the hunt but finished on '+f2.r+'/'+f2.w+', agonisingly '+fs+' run(s) short.');
+else o.push('The required rate climbed too high and they closed on '+f2.r+'/'+f2.w+', '+fs+' runs adrift.');
+}
+}
+if(rs.ty==='ti')o.push('An extraordinary match ends level \u2014 <span class="hl3">MATCH TIED</span>.');
+else o.push('<span class="hl">'+rs.w.n+'</span> won by '+(rs.ty==='rn'?rs.m+' run(s)':rs.m+' wicket(s)')+'.');
+return o.map(function(s){return '<p>'+s+'</p>';}).join('');
+}
+
+/* ============ RENDER ============ */
+function ovL(v){var w=Math.floor(v),b=Math.round((v-w)*6);return b>0?w+'.'+b:''+w;}
+function scHTML(inn,isCh,tg,tot){
+var rows='';
+for(var i=0;i<inn.ph.length;i++){var p=inn.ph[i],rc='';
+if(isCh){if(p.o===0)rc='<td>\u2014</td>';else{var nd=tg-p.cr,lf=tot-p.co;rc='<td>'+(nd<=0?'\u2014':(lf>0?(nd/lf).toFixed(2):'\u2014'))+'</td>';}}
+rows+='<tr><td>'+p.n+'<span class="pn">Overs '+p.s+'\u2013'+p.e+'</span></td><td>'+p.o+'</td><td>'+p.r+'</td><td>'+p.w+'</td><td>'+(p.o>0?(p.r/p.o).toFixed(2):'0.00')+'</td>'+rc+'</tr>';
+}
+var rr=inn.o>0?(inn.r/inn.o).toFixed(2):'0.00';
+return '<div class="sw"><table><thead><tr><th>Phase</th><th>Overs</th><th>Runs</th><th>Wkts</th><th>Run Rate</th>'+(isCh?'<th>Req. Rate</th>':'')+'</tr></thead><tbody>'+rows+'<tr class="tot"><td>TOTAL</td><td>'+ovL(inn.o)+'</td><td>'+inn.r+'</td><td>'+inn.w+'</td><td>'+rr+'</td>'+(isCh?'<td>\u2014</td>':'')+'</tr></tbody></table></div>';
+}
+
+function render(R){
+var c=R.ctx,A=R.A,B=R.B,f1=R.f1,f2=R.f2,rs=R.res,tg=R.tg,f=FMT[c.fmt],p=PCH[c.pch];
+var maxOv=c.customOvers||f.ov;
+var rl;
+if(rs.ty==='ti')rl='<div class="rl"><span class="t">MATCH TIED</span></div>';
+else if(rs.ty==='rn')rl='<div class="rl"><span class="w">'+rs.w.n+'</span> won by '+rs.m+' run'+(rs.m===1?'':'s')+'</div>';
+else if(rs.ty==='so')rl='<div class="rl"><span class="w">'+rs.w.n+'</span> won by Super Over</div>';
+else rl='<div class="rl"><span class="w">'+rs.w.n+'</span> won by '+rs.m+' wicket'+(rs.m===1?'':'s')+'</div>';
+
+var hl=c.hm==='n'?'Neutral':(c.hm==='A'?A.n:B.n)+' (Home)';
+var aSc=f1.t.k==='A'?f1.r+'/'+f1.w:f2.r+'/'+f2.w,bSc=f1.t.k==='B'?f1.r+'/'+f1.w:f2.r+'/'+f2.w;
+var tossMsg=R.tw.n+' won the toss and chose to '+(R.choice==='bat'?'bat':'bowl')+' first';
+var h='<div class="c rh"><div class="rt">Match Result</div>'+rl+'<div class="rs">'+tossMsg+'</div><div class="vs"><div class="vt">'+A.n+'<small>'+aSc+'</small></div><div style="color:#8a9bbd;font-weight:800;font-size:.72rem">VS</div><div class="vt">'+B.n+'<small>'+bSc+'</small></div></div></div>';
+
+if(R.rain1)h+='<div class="rw">🌧️ <b>Rain interrupted!</b> Match reduced to '+R.adjustedOvers+' overs. DLS target revised to <b>'+R.tg+'</b>.</div>';
+if(R.rain2)h+='<div class="rw">🌧️ <b>Rain during chase!</b> Target recalculated via DLS to <b>'+R.tg+'</b>.</div>';
+
+h+='<div class="c"><h2>Match Conditions</h2><div class="cg"><div class="ch"><div class="k">Format</div><div class="v">'+c.fmt+(c.customOvers?' ('+c.customOvers+' ov)':'')+'</div></div><div class="ch"><div class="k">Pitch</div><div class="v">'+p.l+'</div></div><div class="ch'+(R.dew?' dew':'')+'"><div class="k">Temp</div><div class="v">'+c.tmp+'\u00B0C'+(R.dew?' 💧':'')+'</div></div><div class="ch"><div class="k">Home</div><div class="v">'+hl+'</div></div></div></div>';
+h+='<div class="c"><h2>Team Ratings</h2><div class="sw"><table><thead><tr><th>Team</th><th>Batting</th><th>Bowling</th></tr></thead><tbody><tr><td>'+A.n+'</td><td>'+A.bat.toFixed(1)+'</td><td>'+A.bwl.toFixed(1)+'</td></tr><tr><td>'+B.n+'</td><td>'+B.bat.toFixed(1)+'</td><td>'+B.bwl.toFixed(1)+'</td></tr></tbody></table></div></div>';
+h+='<div class="c"><div class="ih"><h3>1st Innings \u2014 '+f1.t.n+'</h3><div class="is">'+f1.r+'/'+f1.w+'<span>('+ovL(f1.o)+' ov \u00B7 RR '+f1.rpo.toFixed(2)+')</span></div></div>'+scHTML(f1,false,0,maxOv)+'</div>';
+
+var lf=maxOv-f2.o,frr=(f2.r>=tg||lf<=0)?'\u2014':((tg-f2.r)/lf).toFixed(2);
+h+='<div class="c"><div class="ih"><h3>2nd Innings \u2014 '+f2.t.n+'</h3><div class="is">'+f2.r+'/'+f2.w+'<span>('+ovL(f2.o)+' ov \u00B7 RR '+f2.rpo.toFixed(2)+')</span></div></div>'+scHTML(f2,true,tg,maxOv)+'<div class="cb"><span>Target: <b>'+tg+'</b></span><span>Req. Rate (start): <b>'+(tg/maxOv).toFixed(2)+'</b></span><span>Final Req. Rate: <b>'+frr+'</b></span><span>'+(f2.ao?'All Out':'Wkts in hand: <b>'+(10-f2.w)+'</b>')+'</span></div></div>';
+
+if(R.so){
+h+='<div class="so"><div class="so-t">🔥 Super Over Result</div>';
+h+='<div class="so-row"><b>'+R.so.f1.team+'</b><span class="sc">'+R.so.f1.r+'/'+R.so.f1.w+'</span></div>';
+h+='<div class="so-row"><b>'+R.so.f2.team+'</b><span class="sc">'+R.so.f2.r+'/'+R.so.f2.w+'</span></div>';
+h+='</div>';
+}
+
+h+='<div class="c"><h2>Match Awards</h2>'+calcPOTM(R)+'</div>';
+h+='<div class="c smc"><h2>AI Match Summary</h2>'+genSum(R)+'</div>';
+
+var o=document.getElementById('out');o.innerHTML=h;o.classList.remove('hid');o.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ============ UI WIRING ============ */
+function $(i){return document.getElementById(i);}
+
+function fillCountries(){
+var a=$('aCountry'),b=$('bCountry');
+a.innerHTML='';b.innerHTML='';
+var keys=Object.keys(COUNTRIES);
+for(var i=0;i<keys.length;i++){
+a.innerHTML+='<option value="'+keys[i]+'">'+COUNTRIES[keys[i]].flag+' '+keys[i]+'</option>';
+b.innerHTML+='<option value="'+keys[i]+'">'+COUNTRIES[keys[i]].flag+' '+keys[i]+'</option>';
+}
+a.innerHTML+='<option value="Custom">🌐 Custom Team</option>';
+b.innerHTML+='<option value="Custom">🌐 Custom Team</option>';
+a.value="India";b.value="Australia";
+}
+
+function fillGrounds(){
+var ht=$('ht').value, gr=$('grnd');
+gr.innerHTML='<option value="">Neutral Venue</option>';
+if(ht==='n')return;
+var country=ht==='A'?$('aCountry').value:$('bCountry').value;
+if(country==='Custom')return;
+var gs=GROUNDS[country]||[];
+for(var i=0;i<gs.length;i++){
+gr.innerHTML+='<option value="'+gs[i].p+'" data-p="'+gs[i].p+'">'+gs[i].n+'</option>';
+}
+}
+
+function autoFill(){
+var c=$('aCountry').value;
+var c2=$('bCountry').value;
+var isT20=selF==='T20';
+
+if(c!=='Custom'){
+var r=COUNTRIES[c][isT20?'T20':'ODI'];
+$('aB').value=r[0];$('aBO').textContent=r[0].toFixed(1);
+$('aW').value=r[1];$('aWO').textContent=r[1].toFixed(1);
+$('aN').value=c;
+}else{
+$('aN').value="Custom Team A";
+}
+
+if(c2!=='Custom'){
+var r2=COUNTRIES[c2][isT20?'T20':'ODI'];
+$('bB').value=r2[0];$('bBO').textContent=r2[0].toFixed(1);
+$('bW').value=r2[1];$('bWO').textContent=r2[1].toFixed(1);
+$('bN').value=c2;
+}else{
+$('bN').value="Custom Team B";
+}
+}
+
+var selF='T20';
+document.querySelectorAll('#fs button').forEach(function(b){
+b.addEventListener('click',function(){
+document.querySelectorAll('#fs button').forEach(function(x){x.classList.remove('on');});
+b.classList.add('on');selF=b.dataset.v;autoFill();
+});
+});
+
+['aCountry','bCountry'].forEach(function(id){
+$(id).addEventListener('change',function(){autoFill();fillGrounds();syncH();});
+});
+['aB','aW','bB','bW'].forEach(function(id){var e=$(id),o=$(id+'O');function s(){o.textContent=parseFloat(e.value).toFixed(1);}e.addEventListener('input',s);});
+
+function syncH(){
+var a=$('aN').value.trim()||'Team A',b=$('bN').value.trim()||'Team B';
+document.querySelector('#ht option[value="A"]').textContent=a;
+document.querySelector('#ht option[value="B"]').textContent=b;
+}
+$('aN').addEventListener('input',syncH);$('bN').addEventListener('input',syncH);
+$('ht').addEventListener('change',fillGrounds);
+$('grnd').addEventListener('change',function(){
+var o=this.options[this.selectedIndex];
+if(o.dataset.p)$('pt').value=o.dataset.p;
+});
+
+function err(m){var e=$('eb');e.textContent=m;e.classList.remove('hid');}
+function clr(){$('eb').classList.add('hid');}
+function readInp(){
+clr();
+var aN=$('aN').value.trim(),bN=$('bN').value.trim();
+var aB=parseFloat($('aB').value),aW=parseFloat($('aW').value);
+var bB=parseFloat($('bB').value),bW=parseFloat($('bW').value);
+var tp=parseFloat($('tp').value);
+if(!aN||!bN){err('Both team names required.');return null;}
+if(aN.toLowerCase()===bN.toLowerCase()){err('Team names must differ.');return null;}
+var r=[aB,aW,bB,bW];for(var i=0;i<4;i++){if(isNaN(r[i])||r[i]<0||r[i]>10){err('Ratings must be 0-10.');return null;}}
+if(isNaN(tp)||tp<-10||tp>55){err('Temperature must be -10 to 55.');return null;}
+var hm=$('ht').value,pch=$('pt').value;
+if(!PCH[pch]){err('Invalid pitch.');return null;}
+
+var cOv=parseInt($('cOvers').value)||0;
+if(cOv>50||cOv<1){err('Custom Overs must be 1-50.');return null;}
+if(cOv===0) cOv=null;
+
+return{aN:aN,bN:bN,aB:aB,aW:aW,bB:bB,bW:bW,fmt:selF,hm:hm,pch:pch,tmp:tp,groundMod:0,cOvers:cOv};
+}
+
+var pendingInput=null,tossWinnerKey='A';
+function go(){
+var inp=readInp();if(!inp)return;
+pendingInput=inp;
+$('out').classList.add('hid');$('out').innerHTML='';
+$('inp').classList.add('hid');$('toss').classList.add('hid');
+$('ld').classList.remove('hid');$('lm').textContent='Tossing the coin\u2026';
+$('sb').disabled=true;
+tossWinnerKey=Math.random()<0.5?'A':'B';
+var winName=tossWinnerKey==='A'?inp.aN:inp.bN;
+setTimeout(function(){
+$('ld').classList.add('hid');$('toss').classList.remove('hid');
+$('tossWinner').textContent='🏏 '+winName+' won the toss!';
+$('toss').scrollIntoView({behavior:'smooth',block:'center'});
+},1200);
+}
+
+function chooseBatBowl(choice){
+if(!pendingInput)return;
+$('toss').classList.add('hid');$('ld').classList.remove('hid');
+var m=['Analysing pitch\u2026','Checking weather\u2026','Simulating innings\u2026','Evaluating conditions\u2026','Finalising result\u2026'],i=0,me=$('lm');
+me.textContent=m[0];
+var iv=setInterval(function(){i=(i+1)%m.length;me.textContent=m[i];},240);
+setTimeout(function(){
+clearInterval(iv);
+$('ld').classList.add('hid');$('inp').classList.remove('hid');$('sb').disabled=false;
+var R=simMatch(pendingInput,tossWinnerKey,choice);
+render(R);
+pendingInput=null;
+},1500);
+}
+
+$('sb').addEventListener('click',go);
+$('batBtn').addEventListener('click',function(){chooseBatBowl('bat');});
+$('bowlBtn').addEventListener('click',function(){chooseBatBowl('bowl');});
+document.querySelectorAll('input[type=number]').forEach(function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter')go();});});
+
+/* INIT */
+fillCountries();
+autoFill();
+fillGrounds();
+syncH();
+</script>
+</body></html>
